@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoPulse Ultimate Hub - Team Invicta Chaos</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- =========================================================
+         HEADER & TEAM INVICTA CHAOS BRANDING
+         ========================================================= -->
+    <header>
+        <div class="header-top">
+            <div class="title-group">
+                <h1>🌱 EcoPulse Ultimate Hub</h1>
+                <div class="team-badge">
+                    <span>⚡ Team Invicta Chaos</span>
+                    <span>• Sneha, Aditi, Divyanshi & Panchmi</span>
+                </div>
+                <p class="tagline">Campus Wellness, Carbon Reduction, Mindful Creativity & Digital Detox Platform</p>
+            </div>
+            <div class="header-controls">
+                <div class="clock-pill" id="liveClock">--:--:--</div>
+                <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================================
+         GAMIFICATION HERO HUB & VIRTUAL COMPANION
+         ========================================================= -->
+    <div class="gamification-hub">
+        <!-- Virtual Plant / Eco Companion -->
+        <div class="companion-card">
+            <div class="companion-avatar" id="companionAvatar">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="46" fill="#e6f4ea" />
+                    <!-- Pot -->
+                    <path d="M30 68 L70 68 L64 90 L36 90 Z" fill="#b45309" />
+                    <rect x="28" y="64" width="44" height="6" rx="2" fill="#d97706" />
+                    <!-- Stem & Leaves -->
+                    <path d="M50 64 Q50 35 50 25" stroke="#15803d" stroke-width="4" stroke-linecap="round" />
+                    <path d="M50 48 Q32 40 32 30 Q44 32 50 48" fill="#22c55e" />
+                    <path d="M50 38 Q68 30 68 20 Q56 22 50 38" fill="#16a34a" />
+                    <circle cx="50" cy="22" r="5" fill="#facc15" />
+                </svg>
+            </div>
+            <div class="companion-info">
+                <h3 id="plantStageVal">{{ profile.plant_stage }}</h3>
+                <div class="companion-subtitle">Virtual Eco Companion • Powered by Your Mindful Actions</div>
+                <div class="companion-action">
+                    <button class="quick-water-btn" onclick="quickDrinkWater()">
+                        💧 Drink Water (+15 XP)
+                    </button>
+                    <span id="waterCountPill" style="font-size: 0.8rem; font-weight: 700; color: var(--teal-light);">
+                        {{ profile.glasses_drank_today }} Glasses
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="stats-grid">
+            <div class="stat-metric-card">
+                <div class="stat-val" id="streakVal">🔥 {{ profile.streak_days }} Days</div>
+                <div class="stat-label">Eco-Wellness Streak</div>
+            </div>
+            <div class="stat-metric-card">
+                <div class="stat-val" id="totalXpVal">⭐ {{ profile.total_xp }} XP</div>
+                <div class="stat-label" id="levelTitleVal">Lvl {{ profile.level }}: {{ profile.level_title }}</div>
+                <div class="xp-bar-wrapper">
+                    <div class="xp-progress-fill" id="xpProgressFill" style="width: {{ profile.xp_percent }}%;"></div>
+                </div>
+            </div>
+            <div class="stat-metric-card">
+                <div class="stat-val" id="bottlesSavedVal">💧 {{ profile.bottles_saved }}</div>
+                <div class="stat-label">Plastics Saved</div>
+            </div>
+            <div class="stat-metric-card">
+                <div class="stat-val" id="co2SavedVal">🌿 {{ profile.total_co2_saved }} kg</div>
+                <div class="stat-label">CO₂ Offset</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         NAVIGATION TABS MENU
+         ========================================================= -->
+    <nav class="tabs-navigation">
+        <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 Trackers & AI</button>
+        <button class="tab-btn" data-tab="meditation" onclick="switchTab('meditation')">🧘 Zen & Ambient Lounge</button>
+        <button class="tab-btn" data-tab="creative" onclick="switchTab('creative')">🎨 Creative & Doodle Studio</button>
+        <button class="tab-btn" data-tab="books" onclick="switchTab('books')">📚 Book Lovers Haven</button>
+        <button class="tab-btn" data-tab="games" onclick="switchTab('games')">🎮 Brain Arcade & Puzzles</button>
+        <button class="tab-btn" data-tab="detox" onclick="switchTab('detox')">⏱️ Digital Detox & Lock</button>
+        <button class="tab-btn" data-tab="recipes" onclick="switchTab('recipes')">🥗 Gourmet Kitchen</button>
+        <button class="tab-btn" data-tab="workouts" onclick="switchTab('workouts')">🏋️ Workout Arena & Streak</button>
+        <button class="tab-btn" data-tab="quests" onclick="switchTab('quests')">🎯 Quests & Badges</button>
+    </nav>
+
+    <!-- =========================================================
+         TAB 1: DIAGNOSTIC DASHBOARD & EMISSION TRACKER
+         ========================================================= -->
+    <div id="dashboard" class="tab-panel active">
+        <form id="diagnosticForm" onsubmit="submitDiagnostic(event)">
+            <div class="form-grid">
+                <!-- Better Us: Wellness & Burnout -->
+                <div class="glass-card wellness">
+                    <div class="section-title">
+                        <span>🧠 Better Us</span>
+                        <span style="font-size:0.85rem; font-weight:600; color:var(--purple-light);">(Wellness & Burnout Shield)</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Sleep Duration Last Night:</span>
+                            <span class="value-pill" id="sleepVal">{{ inputs.sleep if inputs else 7.5 }}h</span>
+                        </label>
+                        <input type="range" id="sleepInput" name="sleep" min="3.0" max="12.0" step="0.5" value="{{ inputs.sleep if inputs else 7.5 }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Screen & Study Hours Today:</span>
+                            <span class="value-pill" id="screenVal">{{ inputs.screen if inputs else 7.0 }}h</span>
+                        </label>
+                        <input type="range" id="screenInput" name="screen" min="1.0" max="16.0" step="0.5" value="{{ inputs.screen if inputs else 7.0 }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Perceived Stress Level (1-10):</span>
+                            <span class="value-pill" id="stressVal">{{ inputs.stress if inputs else 4 }}/10</span>
+                        </label>
+                        <input type="range" id="stressInput" name="stress" min="1" max="10" step="1" value="{{ inputs.stress if inputs else 4 }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Current Academic Mood:</label>
+                        <input type="hidden" id="moodInput" name="mood" value="{{ inputs.mood if inputs else 'focused' }}">
+                        <div class="pill-selector" data-for="moodInput">
+                            <div class="pill-option active" data-value="focused">🎯 Focused</div>
+                            <div class="pill-option" data-value="energetic">⚡ Energetic</div>
+                            <div class="pill-option" data-value="neutral">😐 Neutral</div>
+                            <div class="pill-option" data-value="anxious">😰 Anxious</div>
+                            <div class="pill-option" data-value="exhausted">😴 Exhausted</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Water Intake Today (Glasses):</label>
+                        <input type="number" name="water" value="{{ inputs.water if inputs else 7 }}" min="1" max="20" required>
+                    </div>
+                </div>
+
+                <!-- Better Surroundings: Carbon Reduction -->
+                <div class="glass-card eco">
+                    <div class="section-title">
+                        <span>🌍 Better Surroundings</span>
+                        <span style="font-size:0.85rem; font-weight:600; color:var(--eco-green-light);">(Eco Footprint & Climate Action)</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Commute Distance Today (km):</span>
+                            <span class="value-pill" id="commuteVal">{{ inputs.commute_distance if inputs else 4.0 }} km</span>
+                        </label>
+                        <input type="range" id="commuteInput" name="commute_distance" min="0.5" max="30.0" step="0.5" value="{{ inputs.commute_distance if inputs else 4.0 }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Transport Mode to Campus:</label>
+                        <input type="hidden" id="transportInput" name="transport_mode" value="{{ inputs.transport_mode if inputs else 'bike_walk' }}">
+                        <div class="pill-selector" data-for="transportInput">
+                            <div class="pill-option active" data-value="bike_walk">🚲 Bike / Walk (0 CO₂)</div>
+                            <div class="pill-option" data-value="bus">🚌 Public Bus / Shuttle</div>
+                            <div class="pill-option" data-value="ev">⚡ EV / Cart</div>
+                            <div class="pill-option" data-value="carpool">🚗 Carpool Van</div>
+                            <div class="pill-option" data-value="car">🚙 Cab / Solo Car</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Primary Meal Choice Today:</label>
+                        <input type="hidden" id="dietInput" name="diet_choice" value="{{ inputs.diet_choice if inputs else 'vegetarian' }}">
+                        <div class="pill-selector" data-for="dietInput">
+                            <div class="pill-option" data-value="vegan">🌱 Vegan</div>
+                            <div class="pill-option active" data-value="vegetarian">🥗 Vegetarian</div>
+                            <div class="pill-option" data-value="pescatarian">🐟 Pescatarian</div>
+                            <div class="pill-option" data-value="balanced">🍗 Balanced</div>
+                            <div class="pill-option" data-value="meat">🥩 Red Meat</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Reusable Bottle Refills (Saved Plastics):</label>
+                        <input type="number" name="refills" value="{{ inputs.refills if inputs else 4 }}" min="0" max="15" required>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary-action">
+                <span>🚀 Run EcoPulse Diagnostic & Sync (+XP Rewards)</span>
+            </button>
+        </form>
+
+        <!-- DIAGNOSTIC RESULTS CONTAINER -->
+        <div id="resultsDashboard" class="results-dashboard" style="display: {{ 'block' if initial_results else 'none' }};">
+            <h2 style="font-size:1.35rem; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                <span>📊 Real-Time Diagnostic & Action Results</span>
+            </h2>
+
+            <div class="metric-highlights">
+                <div class="metric-card-summary {{ initial_results.burnout_class if initial_results else 'low' }}">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Burnout Risk Evaluation</div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:4px;">
+                        <span id="resultRiskBadge" class="badge bg-{{ initial_results.burnout_class if initial_results else 'low' }}">
+                            {{ initial_results.burnout_risk if initial_results else 'Low' }} Risk ({{ initial_results.burnout_score if initial_results else 25 }}/100)
+                        </span>
+                    </div>
+                    <p id="resultBurnoutMsg" style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px;">
+                        {{ initial_results.burnout_msg if initial_results else 'Optimal energy and balance today!' }}
+                    </p>
+                </div>
+
+                <div class="metric-card-summary" style="border-left-color: var(--primary-light);">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Carbon Output Today</div>
+                    <div id="resultCo2Total" style="font-size:1.6rem; font-weight:900; color:var(--primary-light); margin-top:4px;">
+                        {{ initial_results.co2_total if initial_results else '0.85' }} kg CO₂
+                    </div>
+                    <p id="resultCo2Subtext" style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">
+                        ~{{ initial_results.laptop_charges if initial_results else '56' }} laptop charges | ~{{ initial_results.phone_charges if initial_results else '106' }} phone charges
+                    </p>
+                    <div id="resultCo2Saved" style="font-size:0.82rem; color:var(--eco-green); font-weight:700; margin-top:6px;">
+                        🌿 You saved ~{{ initial_results.co2_saved if initial_results else '3.1' }} kg CO₂ vs high-emission baseline today!
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size:1.1rem; color:var(--text-primary); margin-top:20px;">⚡ Auto-Generated Connected Interventions:</h3>
+            
+            <div class="solution-grid">
+                <!-- Tailored Workout -->
+                <div class="solution-item" id="resultWorkoutCard">
+                    {% if initial_results and initial_results.workout %}
+                    <h4>🏃 Tailored Movement: {{ initial_results.workout.name }}</h4>
+                    <div style="font-size:0.82rem; color:var(--primary-light); font-weight:700; margin-bottom:4px;">
+                        {{ initial_results.workout.type }} | Duration: {{ initial_results.workout.duration }}
+                    </div>
+                    <p>{{ initial_results.workout.desc }}</p>
+                    <button class="quick-water-btn" style="margin-top:8px; width:auto;" onclick="logSpecificWorkout('{{ initial_results.workout.name }}', '{{ initial_results.workout.type }}', '{{ initial_results.workout.duration }}', '{{ initial_results.workout.equipment }}', 'Moderate', 60)">
+                        ✅ Log Workout (+35 XP)
+                    </button>
+                    {% else %}
+                    <h4>🏃 Tailored Movement</h4>
+                    <p>Run your diagnostic above to receive a personalized restorative movement break!</p>
+                    {% endif %}
+                </div>
+
+                <!-- Tailored Recipe -->
+                <div class="solution-item" id="resultRecipeCard" style="border-left-color: var(--eco-green);">
+                    {% if initial_results and initial_results.recipe %}
+                    <h4>{{ initial_results.recipe.title }}</h4>
+                    <div style="font-size:0.82rem; color:var(--eco-green); font-weight:700; margin-bottom:4px;">
+                        {{ initial_results.recipe.category }} | {{ initial_results.recipe.time }} | {{ initial_results.recipe.protein }}
+                    </div>
+                    <p>{{ initial_results.recipe.instructions }}</p>
+                    <div style="margin-top:6px; font-size:0.85rem; color:var(--primary);"><strong>Impact:</strong> {{ initial_results.recipe.co2 }}</div>
+                    {% else %}
+                    <h4>🥗 Plant-Based Power Swap</h4>
+                    <p>Run your diagnostic above to receive a delicious quick dorm recipe!</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Interventions List -->
+            <div id="resultInterventionsList" style="margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:12px;">
+                {% if initial_results and initial_results.interventions %}
+                {% for item in initial_results.interventions %}
+                <div class="solution-item">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h4>{{ item.title }}</h4>
+                        <span class="badge" style="background:var(--eco-green); font-size:0.75rem;">{{ item.badge }}</span>
+                    </div>
+                    <p style="margin-top:6px;">{{ item.desc }}</p>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ACTIVITY HISTORY TABLE -->
+        <div class="history-section">
+            <div class="history-header">
+                <h3 style="font-size:1.15rem; color:var(--text-primary);">📜 Recorded Activity History (Persistent Sync)</h3>
+                <a href="/api/export/csv" class="btn-secondary">📥 Export History (CSV)</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Sleep / Screen</th>
+                            <th>Stress & Mood</th>
+                            <th>Campus Commute</th>
+                            <th>Diet Choice</th>
+                            <th>Est. CO₂</th>
+                            <th>Burnout</th>
+                            <th>XP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if history %}
+                        {% for log in history %}
+                        <tr>
+                            <td>{{ log.timestamp }}</td>
+                            <td>{{ log.sleep }}h / {{ log.screen }}h</td>
+                            <td>{{ log.stress }}/10 ({{ log.mood }})</td>
+                            <td>{{ log.transport }} ({{ log.distance }}km)</td>
+                            <td>{{ log.diet }}</td>
+                            <td><strong>{{ log.co2 }} kg</strong></td>
+                            <td><span class="badge bg-{{ log.burnout_class }}" style="font-size:0.75rem; padding:2px 8px;">{{ log.burnout }}</span></td>
+                            <td><strong style="color:var(--teal-light);">+{{ log.xp_earned }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">
+                                No activity recorded yet. Run your first diagnostic above!
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TAB 2: ZEN & AMBIENT MUSIC LOUNGE
+         ========================================================= -->
+    <div id="meditation" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">🧘 Zen & Ambient Music Lounge</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">
+            100% Offline Web Audio API Synthesizer • Calms nervous system, improves sleep quality, and aids focus.
+        </p>
+
+        <div class="form-grid">
+            <div class="zen-audio-card">
+                <h3 style="font-size:1.1rem; color:var(--text-primary);">🎵 Synthesized Offline Soundscapes</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">
+                    Sound waves generated mathematically right in your browser (Zero data or WiFi required):
+                </p>
+
+                <div class="sound-buttons-grid">
+                    <button class="sound-toggle-btn" data-sound="rain" onclick="playSynthSound('rain')">
+                        <span>🌧️</span>
+                        <span>Rain Shower</span>
+                    </button>
+                    <button class="sound-toggle-btn" data-sound="waves" onclick="playSynthSound('waves')">
+                        <span>🌊</span>
+                        <span>Ocean Waves</span>
+                    </button>
+                    <button class="sound-toggle-btn" data-sound="wind" onclick="playSynthSound('wind')">
+                        <span>🍃</span>
+                        <span>Forest Wind</span>
+                    </button>
+                    <button class="sound-toggle-btn" data-sound="brown" onclick="playSynthSound('brown')">
+                        <span>🎧</span>
+                        <span>Brown Noise</span>
+                    </button>
+                    <button class="sound-toggle-btn" data-sound="chime" onclick="playSynthSound('chime')">
+                        <span>🔔</span>
+                        <span>Tibetan Bowl</span>
+                    </button>
+                    <button class="sound-toggle-btn stop" onclick="stopSynthSound()">
+                        <span>⏹️</span>
+                        <span>Stop Audio</span>
+                    </button>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <label class="form-label">
+                        <span>Master Volume:</span>
+                    </label>
+                    <input type="range" id="ambientVolume" min="0.0" max="0.5" step="0.01" value="0.2" oninput="setAmbientVolume(this.value)">
+                </div>
+            </div>
+
+            <!-- 4-7-8 Breathing Circle -->
+            <div class="zen-audio-card">
+                <h3 style="font-size:1.1rem; color:var(--text-primary); margin-bottom:12px;">🌬️ 4-7-8 Parasympathetic Breathing</h3>
+                <div class="breathing-box">
+                    <div class="breathing-circle-outer" id="breathingCircle">
+                        <div class="breathing-circle-inner" id="breathingInner">
+                            <div>
+                                <div id="breathingText">Ready</div>
+                                <div id="breathingCounter" style="font-size:0.85rem; font-weight:600; opacity:0.85;">4-7-8</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="quick-water-btn" onclick="startBreathing()">▶️ Begin Breathing Loop</button>
+                        <button class="btn-secondary" onclick="stopBreathing()">⏹️ Pause</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Positive Inspiration -->
+        <div class="glass-card" style="margin-top:20px; border-left:5px solid var(--purple-light);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <h3 style="font-size:1.1rem; color:var(--text-primary);">✨ Daily Positive Inspiration & Mindset</h3>
+                    <div id="quoteDisplay" style="font-size:1.2rem; font-style:italic; color:var(--purple-light); margin:12px 0; font-family:'Georgia', serif;">
+                        “{{ quotes[0].quote }}”
+                    </div>
+                    <div id="quoteAuthor" style="font-size:0.9rem; font-weight:700; color:var(--text-muted);">
+                        — {{ quotes[0].author }}
+                    </div>
+                </div>
+                <button class="quick-water-btn" style="background:var(--purple-gradient); padding:10px 18px;" onclick="generateNewQuote()">
+                    🔄 New Quote
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TAB 3: CREATIVE DOODLE STUDIO & LITERARY CORNER
+         ========================================================= -->
+    <div id="creative" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">🎨 Creative Doodle Studio & Literary Corner</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">
+            Express yourself through freehand sketching, save artworks to your gallery, or share original poetry and prose!
+        </p>
+
+        <div class="form-grid">
+            <!-- Doodle Canvas & Controls -->
+            <div class="canvas-wrapper">
+                <div class="canvas-toolbar">
+                    <label style="font-size:0.85rem; font-weight:700;">Color:</label>
+                    <input type="color" id="brushColor" value="#0f766e" style="width:36px; height:32px; border:none; border-radius:4px; cursor:pointer;">
+                    
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <span class="color-dot" style="background:#15803d;" title="Eco Green" onclick="setBrushPreset('#15803d')"></span>
+                        <span class="color-dot" style="background:#0f766e;" title="Teal Accent" onclick="setBrushPreset('#0f766e')"></span>
+                        <span class="color-dot" style="background:#2563eb;" title="Ocean Blue" onclick="setBrushPreset('#2563eb')"></span>
+                        <span class="color-dot" style="background:#8b5cf6;" title="Violet" onclick="setBrushPreset('#8b5cf6')"></span>
+                        <span class="color-dot" style="background:#ef4444;" title="Coral Red" onclick="setBrushPreset('#ef4444')"></span>
+                        <span class="color-dot" style="background:#f59e0b;" title="Amber Yellow" onclick="setBrushPreset('#f59e0b')"></span>
+                        <span class="color-dot" style="background:#0f172a;" title="Charcoal" onclick="setBrushPreset('#0f172a')"></span>
+                    </div>
+
+                    <label style="font-size:0.85rem; font-weight:700; margin-left:8px;">Size (<span id="brushSizeDisplay">5</span>px):</label>
+                    <input type="range" id="brushSize" min="1" max="40" value="5" style="width:80px;" oninput="document.getElementById('brushSizeDisplay').innerText = this.value">
+
+                    <button class="btn-secondary" id="eraserToggleBtn" style="padding:4px 10px; font-size:0.8rem;" onclick="toggleEraser()">🧹 Eraser</button>
+                    <button class="btn-secondary" style="padding:4px 10px; font-size:0.8rem;" onclick="undoCanvas()">↩️ Undo</button>
+                    <button class="btn-secondary" style="padding:4px 10px; font-size:0.8rem;" onclick="redoCanvas()">↪️ Redo</button>
+                    <button class="btn-secondary" style="padding:4px 10px; font-size:0.8rem; background:#fee2e2; color:#b91c1c;" onclick="clearCanvas()">🗑️ Clear</button>
+                </div>
+
+                <!-- Canvas -->
+                <canvas id="doodleCanvas"></canvas>
+
+                <!-- Save to Gallery Form -->
+                <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:var(--bg-secondary); padding:10px; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+                    <input type="text" id="doodleTitleInput" placeholder="Artwork Title (e.g. Midnight Pine)" style="flex:2; min-width:160px; font-size:0.88rem;">
+                    <input type="text" id="doodleAuthorInput" placeholder="Artist Pseudonym" style="flex:1; min-width:130px; font-size:0.88rem;">
+                    <button class="quick-water-btn" style="padding:8px 16px;" onclick="saveCurrentDoodle()">💾 Save to Gallery (+25 XP)</button>
+                    <button class="btn-secondary" style="padding:8px 14px;" onclick="downloadCanvas()">📥 Download PNG</button>
+                </div>
+
+                <!-- Doodles Gallery -->
+                <div style="margin-top:20px;">
+                    <h4 style="font-size:1rem; color:var(--text-primary); margin-bottom:8px;">🖼️ Saved Doodles Gallery (Click to Edit or Download):</h4>
+                    <div id="communityDoodlesGallery" class="doodle-gallery-grid">
+                        {% if doodles %}
+                        {% for d in doodles %}
+                        <div class="doodle-card" id="doodle-card-{{ d.id }}">
+                            <img src="{{ d.image_data }}" class="doodle-thumb" alt="{{ d.title }}">
+                            <div style="font-weight:750; font-size:0.85rem; margin-top:6px; color:var(--text-primary);">{{ d.title }}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">by {{ d.author }} • {{ d.timestamp }}</div>
+                            <div class="doodle-actions">
+                                <button class="btn-secondary" style="font-size:0.75rem; padding:3px 8px;" onclick="loadDoodleOntoCanvas('{{ d.id }}')">✏️ Edit</button>
+                                <button class="btn-secondary" style="font-size:0.75rem; padding:3px 8px;" onclick="downloadDoodleDirect('{{ d.image_data }}', '{{ d.title }}')">📥 Save</button>
+                                <button class="btn-secondary" style="font-size:0.75rem; padding:3px 8px; color:var(--coral-red);" onclick="deleteDoodleItem('{{ d.id }}')">🗑️</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p style="font-size:0.85rem; color:var(--text-muted); font-style:italic;">No doodles saved yet. Draw above and click Save to Gallery!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Literary Corner (NO Member Names) -->
+            <div class="glass-card">
+                <h3 style="font-size:1.15rem; color:var(--text-primary); margin-bottom:12px;">📖 Student Literary Corner</h3>
+                
+                <form id="literaryForm" onsubmit="submitLiteraryPost(event)">
+                    <div class="form-group">
+                        <label class="form-label">Your Name / Pseudonym:</label>
+                        <input type="text" name="author" placeholder="e.g. Campus Poet, EcoScholar, or Pseudonym" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category / Tag:</label>
+                        <select name="tag">
+                            <option value="Poetry">Poetry & Verse</option>
+                            <option value="Nature & Eco">Nature & Eco Reflection</option>
+                            <option value="Campus Life">Campus Life & Code</option>
+                            <option value="Mindfulness">Mindfulness & Serenity</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Title of Poem / Reflection:</label>
+                        <input type="text" name="title" placeholder="e.g. Whispers of the Pine" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Content / Stanza:</label>
+                        <textarea name="content" rows="4" placeholder="Write your creative verse here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary-action" style="margin-top:6px; background:var(--purple-gradient);">
+                        <span>✍️ Share Literary Piece (+35 XP)</span>
+                    </button>
+                </form>
+
+                <div style="margin-top:20px; max-height:380px; overflow-y:auto; padding-right:6px;">
+                    <h4 style="font-size:0.95rem; color:var(--text-primary); margin-bottom:8px;">Recent Campus Creative Submissions:</h4>
+                    <div id="literaryPostsContainer">
+                        {% for post in posts %}
+                        <div class="literary-post-card">
+                            <div class="post-header">
+                                <div>
+                                    <span class="post-author">{{ post.author }}</span>
+                                    <span class="post-tag">{{ post.tag }}</span>
+                                </div>
+                                <button class="like-btn" onclick="likeLiteraryPost({{ post.id }})">
+                                    ❤️ <span id="like-count-{{ post.id }}">{{ post.likes }}</span>
+                                </button>
+                            </div>
+                            <h4 style="font-size:0.96rem; margin-bottom:4px;">{{ post.title }}</h4>
+                            <p style="font-size:0.88rem; font-style:italic; color:var(--text-secondary); white-space:pre-wrap;">"{{ post.content }}"</p>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">{{ post.timestamp }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TAB 4: BOOK LOVERS HAVEN (Multi-Page Navigation)
+         ========================================================= -->
+    <div id="books" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">📚 Book Lovers Haven</h2>
+        <p style="color:var(--text-muted); margin-bottom:16px;">
+            Offline classic literature with interactive page-flipping (⬅️ / ➡️), reading themes, and font scaling.
+        </p>
+
+        <div class="reader-toolbar">
+            <div class="book-selector-bar">
+                {% for b in books %}
+                <button class="book-btn {{ 'active' if loop.first else '' }}" data-book="{{ b.id }}" onclick="selectBook('{{ b.id }}')">
+                    📖 {{ b.title }}
+                </button>
+                {% endfor %}
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <!-- Page Navigation Controls -->
+                <div style="display:flex; align-items:center; gap:6px; background:var(--bg-secondary); padding:4px 10px; border-radius:var(--radius-pill); border:1px solid var(--border-color);">
+                    <button class="btn-secondary" style="padding:4px 10px; font-size:0.82rem;" id="prevPageTopBtn" onclick="changeBookPage(-1)">⬅️ Prev</button>
+                    <span id="pageIndicatorTop" style="font-size:0.85rem; font-weight:700; min-width:85px; text-align:center;">Page 1 of 3</span>
+                    <button class="btn-secondary" style="padding:4px 10px; font-size:0.82rem;" id="nextPageTopBtn" onclick="changeBookPage(1)">Next ➡️</button>
+                </div>
+
+                <button class="btn-secondary" onclick="adjustBookFontSize(-0.1)" title="Decrease font size">A-</button>
+                <button class="btn-secondary" onclick="adjustBookFontSize(0.1)" title="Increase font size">A+</button>
+                <button class="btn-secondary" onclick="toggleReaderTheme('light')">📜 Paper</button>
+                <button class="btn-secondary" onclick="toggleReaderTheme('sepia')">🍂 Sepia</button>
+                <button class="btn-secondary" onclick="toggleReaderTheme('dark')">🌙 Night</button>
+            </div>
+        </div>
+
+        <!-- Reading Progress Bar -->
+        <div style="height:5px; width:100%; background:var(--border-color); border-radius:3px; margin-bottom:14px; overflow:hidden;">
+            <div id="readingProgressBar" style="height:100%; width:33.3%; background:var(--purple-gradient); transition:width 0.3s ease;"></div>
+        </div>
+
+        <div id="bookReaderDisplay" class="reader-container">
+            <h3 id="bookChapterTitle" style="font-size:1.15rem; color:var(--purple-light); margin-bottom:14px; font-family:'Georgia', serif;">
+                {{ books[0].pages[0].title }}
+            </h3>
+            <div id="bookPageContent">
+{{ books[0].pages[0].text }}
+            </div>
+
+            <!-- Bottom Page Turner -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:30px; padding-top:15px; border-top:1px dashed var(--border-color); flex-wrap:wrap; gap:10px;">
+                <button class="btn-secondary" id="prevPageBottomBtn" onclick="changeBookPage(-1)">⬅️ Previous Page</button>
+                <span id="pageIndicatorBottom" style="font-weight:700; font-size:0.9rem;">Page 1 of 3</span>
+                <button class="quick-water-btn" id="nextPageBottomBtn" onclick="changeBookPage(1)">Next Page ➡️ (+10 XP)</button>
+            </div>
+        </div>
+
+        <!-- Embedded JSON of Books with all Pages -->
+        <script id="booksDataJson" type="application/json">
+            {{ books|tojson }}
+        </script>
+    </div>
+
+    <!-- =========================================================
+         TAB 5: BRAIN ARCADE & PUZZLES
+         ========================================================= -->
+    <div id="games" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">🎮 Brain Arcade & Offline Puzzles</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">
+            Sharpen mental agility, stimulate logical reasoning, and cure study fatigue with quick brain games!
+        </p>
+
+        <div class="arcade-grid">
+            <!-- Dynamic Speed Math Challenge -->
+            <div class="puzzle-card">
+                <div>
+                    <h3 style="font-size:1.15rem; color:var(--text-primary);">⚡ Endless Speed Math Engine</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Solve the mental calculation to test cognitive alertness:</p>
+                    <div class="math-display" id="mathProblemText">15 + 28 = ?</div>
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" id="mathAnswerInput" placeholder="Your Answer" style="flex:1;" onkeydown="if(event.key==='Enter') verifySpeedMath()">
+                        <button class="quick-water-btn" onclick="verifySpeedMath()">Submit</button>
+                    </div>
+                    <p id="mathFeedbackText" style="margin-top:10px; font-weight:700; font-size:0.9rem; min-height:22px;"></p>
+                </div>
+                <button class="btn-secondary" style="margin-top:10px; width:100%; justify-content:center;" onclick="initSpeedMath()">🔄 Skip to Next Equation</button>
+            </div>
+
+            <!-- Logic & Eco Riddles -->
+            <div class="puzzle-card">
+                <div>
+                    <h3 style="font-size:1.15rem; color:var(--text-primary);">🧩 Logic & Climate Riddle</h3>
+                    <p style="font-size:0.95rem; font-style:italic; margin:14px 0; color:var(--text-primary);" id="riddleQuestionText">
+                        "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?"
+                    </p>
+                    <div style="margin-bottom:12px;">
+                        <button class="btn-secondary" style="font-size:0.8rem; padding:4px 10px;" onclick="toggleRiddleHint()">💡 Show/Hide Hint</button>
+                        <p id="riddleHintText" style="font-size:0.82rem; color:var(--amber); margin-top:6px; display:none;">
+                            💡 Hint: Think of sound reverberating back across a valley or empty hall.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="riddleGuessInput" placeholder="Type your guess..." style="flex:1;" onkeydown="if(event.key==='Enter') verifyRiddle()">
+                        <button class="quick-water-btn" style="background:var(--purple-gradient);" onclick="verifyRiddle()">Guess</button>
+                    </div>
+                    <p id="riddleFeedbackText" style="margin-top:10px; font-weight:700; font-size:0.9rem; min-height:22px;"></p>
+                </div>
+                <button class="btn-secondary" style="margin-top:10px; width:100%; justify-content:center;" onclick="initRiddle()">🔄 Next Riddle</button>
+            </div>
+
+            <!-- Eco Memory Match Card Game -->
+            <div class="puzzle-card">
+                <div>
+                    <h3 style="font-size:1.15rem; color:var(--text-primary);">🌿 Eco Memory Match Mini-Game</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Flip cards and match all eco & wellness pairs:</p>
+                    <div class="memory-grid" id="memoryCardsGrid">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+                <button class="btn-secondary" style="margin-top:14px; width:100%; justify-content:center;" onclick="initMemoryGame()">🔄 Reset Memory Grid</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TAB 6: DIGITAL DETOX & DEEP FOCUS LOCK
+         ========================================================= -->
+    <div id="detox" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">⏱️ Digital Detox & Brainrot Counter</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">
+            Combat short-form doomscrolling, regain your attention span, and initiate distraction-free focus locks.
+        </p>
+
+        <div class="form-grid">
+            <div class="glass-card" style="border-left:5px solid var(--coral-red);">
+                <h3 style="font-size:1.15rem; color:var(--text-primary);">📉 Doomscrolling Impact Assessment</h3>
+                <p style="font-size:0.88rem; color:var(--text-muted); margin-top:6px;">
+                    Average unmindful social media / idle screen hours logged today:
+                </p>
+                <div style="font-size:2.4rem; font-weight:900; color:var(--coral-red); margin:12px 0;">
+                    2.5 Hours
+                </div>
+                <div style="background:rgba(220, 38, 38, 0.08); padding:12px; border-radius:var(--radius-sm); border:1px solid rgba(220, 38, 38, 0.2);">
+                    <div style="font-weight:750; font-size:0.9rem; color:var(--coral-red);">⚠️ Cognitive Cost Notice:</div>
+                    <ul style="font-size:0.85rem; color:var(--text-secondary); margin-left:18px; margin-top:4px;">
+                        <li>~15% reduction in sustained working memory retention</li>
+                        <li>Elevated evening cortisol interfering with REM sleep stages</li>
+                        <li>Dopamine receptor desensitization during analytical coursework</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card" style="border-left:5px solid var(--amber);">
+                <h3 style="font-size:1.15rem; color:var(--text-primary);">🔒 Deep Focus Lock Mode</h3>
+                <p style="font-size:0.88rem; color:var(--text-muted); margin-top:6px;">
+                    Launches a full-screen ambient lock overlay that guards against tab hopping and wandering focus.
+                </p>
+                <div style="margin:20px 0; display:flex; align-items:center; gap:12px;">
+                    <label style="font-weight:700; font-size:0.9rem;">Focus Duration:</label>
+                    <select id="lockMinutesInput" style="width:140px;">
+                        <option value="15">15 Minutes</option>
+                        <option value="25" selected>25 Mins (Pomodoro)</option>
+                        <option value="45">45 Mins (Deep Study)</option>
+                        <option value="60">60 Mins (Power Block)</option>
+                    </select>
+                </div>
+                <button class="btn-primary-action" style="background:linear-gradient(135deg, #d97706, #dc2626);" onclick="startFocusLock()">
+                    <span>🔒 Start Fullscreen Focus Lock</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TAB 7: GOURMET ECO-KITCHEN
+         ========================================================= -->
+    <div id="recipes" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">🥗 Gourmet Eco-Kitchen & Recipes</h2>
+        <p style="color:var(--text-muted); margin-bottom:16px;">
+            Delicious, cost-effective plant-based dorm meals that slash carbon footprint and provide steady brain fuel.
+        </p>
+
+        <div class="recipe-cards-grid">
+            {% for r in recipes %}
+            <div class="recipe-box">
+                <div>
+                    <div style="margin-bottom:6px;">
+                        {% for tag in r.tags %}
+                        <span class="recipe-tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    <h3 style="font-size:1.15rem; color:var(--text-primary);">{{ r.title }}</h3>
+                    <div style="font-size:0.85rem; color:var(--eco-green); font-weight:750; margin:6px 0;">
+                        ⏱️ Prep: {{ r.time }} | ⚡ {{ r.calories }} | 💪 {{ r.protein }} | 💵 {{ r.cost }}
+                    </div>
+                    <div style="font-size:0.82rem; color:var(--primary); font-weight:750; margin-bottom:10px;">
+                        🌿 {{ r.co2 }}
+                    </div>
+
+                    <strong style="font-size:0.88rem; color:var(--text-primary);">Ingredients:</strong>
+                    <ul style="font-size:0.85rem; color:var(--text-secondary); margin-left:18px; margin-top:4px;">
+                        {% for ing in r.ingredients %}
+                        <li>{{ ing }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <div style="margin-top:10px; font-size:0.88rem; color:var(--text-secondary);">
+                        <strong>Instructions:</strong> {{ r.instructions }}
+                    </div>
+                </div>
+
+                <button class="quick-water-btn" style="margin-top:14px; width:100%; justify-content:center;" onclick="claimDailyQuest('plant_meal')">
+                    🌱 I Made This Recipe (+35 XP)
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TAB 8: DORM WORKOUT ARENA & WORKOUT STREAK TRACKER
+         ========================================================= -->
+    <div id="workouts" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">🏋️ Dorm Workout Arena & Streak Tracker</h2>
+        <p style="color:var(--text-muted); margin-bottom:16px;">
+            Zero-equipment routines, dedicated workout streak tracking, and persistent movement history.
+        </p>
+
+        <!-- Workout Streak & Stats Bar -->
+        <div class="stats-grid" style="margin-bottom:20px;">
+            <div class="stat-metric-card" style="border-left:4px solid var(--amber);">
+                <div class="stat-val" id="workoutStreakVal">🔥 {{ workout_stats.streak }} Days</div>
+                <div class="stat-label">Workout Streak</div>
+            </div>
+            <div class="stat-metric-card" style="border-left:4px solid var(--primary-light);">
+                <div class="stat-val" id="totalWorkoutsVal">🏋️ {{ workout_stats.total_workouts }}</div>
+                <div class="stat-label">Routines Logged</div>
+            </div>
+            <div class="stat-metric-card" style="border-left:4px solid var(--coral-red);">
+                <div class="stat-val" id="totalWorkoutCaloriesVal">⚡ {{ workout_stats.total_calories }} kcal</div>
+                <div class="stat-label">Estimated Burn</div>
+            </div>
+            <div class="stat-metric-card" style="border-left:4px solid var(--teal-light);">
+                <div class="stat-val" id="totalWorkoutXpVal">⭐ {{ workout_stats.total_xp }} XP</div>
+                <div class="stat-label">Movement XP</div>
+            </div>
+        </div>
+
+        <!-- Preset Workout Routines by Fatigue -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+            {% for intensity, routine_list in workouts.items() %}
+            <div class="glass-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="font-size:1.15rem; color:var(--text-primary);">{{ intensity }} Energy Workouts</h3>
+                    <span class="badge bg-{{ 'low' if intensity=='Low' else ('moderate' if intensity=='Moderate' else 'high') }}">
+                        {{ intensity }} Fatigue
+                    </span>
+                </div>
+
+                {% for ex in routine_list %}
+                <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-left:4px solid var(--primary-light); padding:12px; border-radius:var(--radius-sm); margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong>{{ ex.name }}</strong>
+                        <span style="font-size:0.75rem; color:var(--primary-light); font-weight:750;">{{ ex.duration }} (~{{ ex.calories }} kcal)</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin:2px 0;">Space: {{ ex.equipment }} | Type: {{ ex.type }}</div>
+                    <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:4px;">{{ ex.desc }}</p>
+                    <button class="quick-water-btn" style="margin-top:8px; padding:5px 14px; font-size:0.82rem;" 
+                            onclick="logSpecificWorkout('{{ ex.name }}', '{{ ex.type }}', '{{ ex.duration }}', '{{ ex.equipment }}', '{{ ex.intensity }}', {{ ex.calories }})">
+                        ✅ Log Routine (+35 XP)
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Custom Workout Logger & Recorded History -->
+        <div class="workout-history-container">
+            <h3 style="font-size:1.15rem; color:var(--text-primary); margin-bottom:10px;">➕ Log a Custom Workout</h3>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <input type="text" id="customWorkoutName" placeholder="Workout Name (e.g. Campus Morning Jog)" style="flex:2; min-width:180px;">
+                <select id="customWorkoutType" style="flex:1; min-width:120px;">
+                    <option value="Cardio">Cardio</option>
+                    <option value="Strength">Strength</option>
+                    <option value="Flexibility">Flexibility</option>
+                    <option value="Mindfulness">Mindfulness / Yoga</option>
+                </select>
+                <input type="text" id="customWorkoutDuration" placeholder="Duration (e.g. 15 Mins)" style="flex:1; min-width:120px;" value="15 Mins">
+                <button class="quick-water-btn" style="padding:10px 18px;" onclick="logCustomWorkout()">
+                    ✅ Log & Boost Streak (+35 XP)
+                </button>
+            </div>
+
+            <h3 style="font-size:1.15rem; color:var(--text-primary); margin-top:24px; margin-bottom:10px;">📜 Recorded Workout History</h3>
+            <div class="table-responsive">
+                <table class="workout-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Routine Name</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Intensity</th>
+                            <th>Est. Burn</th>
+                            <th>XP</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workoutHistoryBody">
+                        {% if workout_logs %}
+                        {% for w in workout_logs %}
+                        <tr id="workout-row-{{ w.id }}">
+                            <td>{{ w.timestamp }}</td>
+                            <td><strong>{{ w.workout_name }}</strong></td>
+                            <td>{{ w.workout_type }}</td>
+                            <td>{{ w.duration }}</td>
+                            <td>{{ w.intensity }}</td>
+                            <td>{{ w.calories_est }} kcal</td>
+                            <td><strong style="color:var(--teal-light);">+{{ w.xp_earned }}</strong></td>
+                            <td>
+                                <button class="btn-secondary" style="padding:2px 8px; font-size:0.75rem; color:var(--coral-red);" onclick="deleteWorkoutItem({{ w.id }})">
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding:16px; color:var(--text-muted);">
+                                No workouts logged yet. Complete a workout routine above to start your streak!
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         TAB 9: DAILY QUESTS & BADGES HUB
+         ========================================================= -->
+    <div id="quests" class="tab-panel">
+        <h2 style="font-size:1.4rem; color:var(--text-primary); margin-bottom:6px;">🎯 Daily Quests & Unlocked Badges</h2>
+        <p style="color:var(--text-muted); margin-bottom:20px;">
+            Complete your daily mindful missions and unlock achievements to power your Eco Companion!
+        </p>
+
+        <div class="form-grid">
+            <!-- Quests List -->
+            <div class="glass-card">
+                <h3 style="font-size:1.15rem; color:var(--text-primary); margin-bottom:14px;">📋 Today's Mindful Missions</h3>
+                <div id="dailyQuestsList">
+                    {% for q in quests %}
+                    <div class="quest-item {{ 'completed' if q.completed else '' }}">
+                        <div>
+                            <div style="font-weight:750; font-size:0.92rem; color:var(--text-primary);">{{ q.title }}</div>
+                            <div style="font-size:0.8rem; color:var(--teal-light); font-weight:700;">Reward: +{{ q.xp_reward }} XP</div>
+                        </div>
+                        <button class="quick-water-btn" id="quest-btn-{{ q.quest_id }}" {{ 'disabled style="background:var(--border-color); color:var(--text-muted);"' if q.completed else '' }} onclick="claimDailyQuest('{{ q.quest_id }}')">
+                            {{ 'Completed ✅' if q.completed else 'Claim XP' }}
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Badges Showcase -->
+            <div class="glass-card">
+                <h3 style="font-size:1.15rem; color:var(--text-primary); margin-bottom:14px;">🏆 Campus Achievement Badges</h3>
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:12px;">
+                    {% for b in badges %}
+                    <div style="background:var(--bg-secondary); border:1.5px solid {{ 'var(--eco-green-light)' if b.unlocked else 'var(--border-color)' }}; border-radius:var(--radius-sm); padding:14px 10px; text-align:center; opacity:{{ '1.0' if b.unlocked else '0.45' }};">
+                        <div style="font-size:2.2rem;">{{ b.icon }}</div>
+                        <div style="font-weight:800; font-size:0.85rem; margin-top:6px; color:var(--text-primary);">{{ b.title }}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">{{ b.description }}</div>
+                        <div style="font-size:0.7rem; font-weight:750; color:{{ 'var(--eco-green)' if b.unlocked else 'var(--text-muted)' }}; margin-top:6px;">
+                            {{ 'Unlocked ⭐' if b.unlocked else 'Locked 🔒' }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         FOOTER & TEAM CREDITS
+         ========================================================= -->
+    <footer>
+        <p><strong>🌱 EcoPulse Ultimate Hub</strong> • Crafted with excellence by <strong>Team Invicta Chaos</strong></p>
+        <p style="margin-top:4px; font-size:0.82rem;">Engineered by Sneha K., Aditi J., Divyanshi D., and Panchmi S. • 100% Offline Capable & Privacy Preserving</p>
+    </footer>
+</div>
+
+<!-- =========================================================
+     FULLSCREEN FOCUS LOCK MODAL OVERLAY
+     ========================================================= -->
+<div id="lockOverlay">
+    <div style="font-size:3rem; margin-bottom:10px;">🔒</div>
+    <h1 style="font-size:2.8rem; font-weight:900; color:#facc15;">Deep Focus Lock Active</h1>
+    <p style="font-size:1.2rem; color:#94a3b8; max-width:600px; margin-top:6px;">
+        All external notifications and tabs are muted. Breathe steadily, dive into deep work, and conquer your academic goals.
+    </p>
+
+    <div class="lock-timer-big" id="lockTimerDisplay">25:00</div>
+
+    <p style="font-style:italic; font-size:1.05rem; color:#e2e8f0; max-width:620px; font-family:'Georgia', serif;">
+        “Deep work is the ability to focus without distraction on a cognitively demanding task. It’s a superpower in our increasingly competitive economy.” — Cal Newport
+    </p>
+
+    <div style="margin-top:35px; display:flex; gap:16px;">
+        <button class="quick-water-btn" style="background:#dc2626; padding:12px 28px; font-size:0.95rem;" onclick="stopFocusLock()">
+            ⚠️ Exit Emergency Lock
+        </button>
+    </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
